@@ -19,7 +19,7 @@ const LoginPage = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch('http://ec2-34-225-27-237.compute-1.amazonaws.com:8080/users');
+            const response = await fetch('http://ec2-34-225-27-237.compute-1.amazonaws.com:5432/dadlhgoflf7mau/users');
             if (response.ok) {
                 const userData = await response.json();
                 setUsers(userData);
