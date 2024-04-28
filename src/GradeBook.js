@@ -79,7 +79,7 @@ const GradeBook = () => {
     const handleCreateClass = async () => {
         console.log("LOGGED IN USER: ", loggedInUser);
         try {
-            const response = await fetch('http://ec2-34-225-27-237.compute-1.amazonaws.com:8080/class', {
+            const response = await fetch('https://ec2-34-225-27-237.compute-1.amazonaws.com:8080/class', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ const GradeBook = () => {
 
     const handleAddAssignment = async () => {
         try {
-            const response = await fetch('http://ec2-34-225-27-237.compute-1.amazonaws.com:8080/assignment', {
+            const response = await fetch('https://ec2-34-225-27-237.compute-1.amazonaws.com:8080/assignment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -164,7 +164,7 @@ const GradeBook = () => {
 
     const fetchUserById = async (userId) => {
         try {
-            const response = await fetch(`http://ec2-34-225-27-237.compute-1.amazonaws.com:8080/users/${userId}`);
+            const response = await fetch(`https://ec2-34-225-27-237.compute-1.amazonaws.com:8080/users/${userId}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch userrrr');
             }
@@ -177,7 +177,7 @@ const GradeBook = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch(`http://ec2-34-225-27-237.compute-1.amazonaws.com:8080/users`);
+            const response = await fetch(`https://ec2-34-225-27-237.compute-1.amazonaws.com:8080/users`);
             if (!response.ok) {
                 throw new Error('Failed to fetch user');
             }
@@ -190,7 +190,7 @@ const GradeBook = () => {
 
     const fetchClassByUserId = async () => {
         try {
-            const response = await fetch(`http://ec2-34-225-27-237.compute-1.amazonaws.com:8080/class`);
+            const response = await fetch(`https://ec2-34-225-27-237.compute-1.amazonaws.com:8080/class`);
             if (!response.ok) {
                 throw new Error('Failed to fetch user');
             }
@@ -204,7 +204,7 @@ const GradeBook = () => {
 
     const fetchAssignments = async () => {
         try {
-            const response = await fetch(`http://ec2-34-225-27-237.compute-1.amazonaws.com:8080/assignment`);
+            const response = await fetch(`https://ec2-34-225-27-237.compute-1.amazonaws.com:8080/assignment`);
             if (!response.ok) {
                 throw new Error('Failed to fetch user');
             }
@@ -218,7 +218,7 @@ const GradeBook = () => {
 
     const fetchStudents = async () => {
         try {
-            const response = await fetch(`http://ec2-34-225-27-237.compute-1.amazonaws.com:8080/student`);
+            const response = await fetch(`https://ec2-34-225-27-237.compute-1.amazonaws.com:8080/student`);
             if (!response.ok) {
                 throw new Error('Failed to fetch user');
             }
@@ -233,7 +233,7 @@ const GradeBook = () => {
 
     const fetchGrades = async () => {
         try {
-            const response = await fetch(`http://ec2-34-225-27-237.compute-1.amazonaws.com:8080/grade`);
+            const response = await fetch(`https://ec2-34-225-27-237.compute-1.amazonaws.com:8080/grade`);
             if (!response.ok) {
                 throw new Error('Failed to fetch user');
             }
@@ -262,7 +262,7 @@ const GradeBook = () => {
             console.log("id: ", assignments[index].assignmentId);
             console.log("Assignments: ", assignments);
             const assId = assignments[index].assignmentId;
-            const response = await fetch(`http://ec2-34-225-27-237.compute-1.amazonaws.com:8080/assignment/1`, {
+            const response = await fetch(`https://ec2-34-225-27-237.compute-1.amazonaws.com:8080/assignment/1`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
