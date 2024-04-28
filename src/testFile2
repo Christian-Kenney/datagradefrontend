@@ -1,0 +1,175 @@
+import React, { useState, useEffect } from 'react';
+import './GradeBook.css'; // Import the CSS file
+import { useUser} from "./UserContext";
+
+const GradeBook = () => {
+    // Sample user name, replace with your authentication logic
+    const [user, setUser] = useState('John Doe');
+    const [users, setUsers] = useState({});
+    // Sample class list, replace with your data source
+    const [classes, setClass] = useState([]);
+    const [selectedClass, setSelectedClass] = useState(null);
+    const [students, setStudents] = useState([]);
+    const [assignments, setAssignments] = useState([]);
+    // Sample grade data, replace with your data source
+    const [grades, setGrades] = useState({});
+    const { loggedInUser } = useUser();
+    const [studentDropdown, setStudentDropdown] = useState(null);
+
+    const handleLogout = () => {
+        // Implement logout logic here
+        alert('Logout button clicked');
+    };
+
+    const handleClassChange = (event) => {
+        const selectedClassObject = classes.find(classItem => classItem.subject === event.target.value);
+        setSelectedClass(selectedClassObject);
+    };
+
+    const handleAddStudent = () => {
+        // Filter students who are not enrolled in the selected class
+        const studentsNotEnrolled = students.filter(student => student.classId !== selectedClass.classId);
+        // Create options for the dropdown menu
+        const studentOptions = studentsNotEnrolled.map(student => (
+            <option key={student.userId} value={student.userId}>{users[student.userId].name}</option>
+        ));
+        // Render the dropdown menu
+        const studentDropdown = (
+            <select onChange={handleStudentSelection}>
+                <option value="">Select a student</option>
+                {studentOptions}
+            </select>
+        );
+        // Display the dropdown menu
+        setStudentDropdown(studentDropdown);
+    };
+
+    const handleStudentSelection = (event) => {
+        // Get the selected student's user ID
+        const selectedStudentId = event.target.value;
+        // Find the selected student's information from the users state
+        const selectedStudent = users[selectedStudentId];
+        // Update the state with the selected student's information
+        setStudents([...students, selectedStudent]);
+        updateGradesForNewStudent(selectedStudent);
+    };
+
+    const handleAddAssignment = async () => {
+        try {
+            // Make a POST request to create a new assignment with default name "CHANGE ME"
+            const response = await fetch('http://localhost:8080/assignment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: 'CHANGE ME', classId: selectedClass.classId }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to add assignment');
+            }
+            // Assuming the response contains the newly created assignment data
+            const newAssignment = await response.json();
+            // Update the state with the newly created assignment
+            setAssignments([...assignments, newAssignment]);
+            // Update grades for the new assignment
+            updateGradesForNewAssignment(newAssignment.name);
+        } catch (error) {
+            console.error('Error adding assignment:', error);
+        }
+    };
+
+    const updateGradesForNewStudent = (newStudent) => {
+        const updatedGrades = { ...grades };
+        updatedGrades[newStudent] = {};
+        setGrades(updatedGrades);
+    };
+
+    const updateGradesForNewAssignment = (newAssignment) => {
+        const updatedGrades = { ...grades };
+        Object.keys(updatedGrades).forEach((student) => {
+            updatedGrades[student][newAssignment] = '';
+        });
+        setGrades(updatedGrades);
+    };
+
+    useEffect(() => {
+        // This effect runs whenever the user state changes
+        console.log('User data:', user); // Log user data when it's available
+        console.log('class data: ', classes);
+        console.log('assignment data: ', assignments);
+        console.log('student data: ', students);
+        console.log('grade data: ', grades);
+    }, [user, classes, assignments, students, grades]);
+
+    return (
+        <div className="gradebook">
+            <header className="header">
+                <h1 className="title">GradeBook</h1>
+                <div className="user-info">
+                    <span className="username">Welcome, {user.name}</span>
+                    <button className="logout-btn" onClick={handleLogout}>Logout</button>
+                </div>
+                <div className="class-dropdown">
+                    <select value={selectedClass ? selectedClass.subject : ""} onChange={handleClassChange}>
+                        <option value="">Select a class</option>
+                        {classes.map((classItem, index) => (
+                            <option key={index} value={classItem.subject}>{classItem.subject}</option>
+                        ))}
+                    </select>
+                </div>
+            </header>
+            <main className="main">
+                <div className="controls">
+                    {/* Render the dropdown menu */}
+                    {studentDropdown}
+                    <button onClick={handleAddAssignment}>Add Assignment</button>
+                </div>
+                {/* Render grading components below */}
+                {/* For simplicity, rendering sample grades data */}
+                <div className="grades">
+                    <h2>Grades for {selectedClass ? selectedClass.subject : ''}</h2>
+                    {/* Sample grading table */}
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Student</th>
+                            {assignments.map((assignmentItem, index) => (
+                                <th key={index}>
+                                    <input
+                                        type="text"
+                                        value={assignmentItem.name}
+                                        onChange={(event) => handleAssignmentNameChange(index, event.target.value)}
+                                    />
+                                </th>
+                            ))}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {/* Sample data, replace with actual data */}
+                        {students
+                            .filter(student => student.classId === selectedClass.classId) // Filter students by classId
+                            .map((studentItem, index) => (
+                                <tr key={index}>
+                                    <td>{users[studentItem.userId].name}</td>
+                                    {assignments.map((assignment, assignmentIndex) => (
+                                        <td key={assignmentIndex}>
+                                            <input
+                                                type="text"
+                                                value={'' || ''}
+                                                onChange={(event) =>
+                                                    handleGradeChange(studentItem, assignment, event)
+                                                }
+                                            />
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    );
+};
+
+export default GradeBook;
