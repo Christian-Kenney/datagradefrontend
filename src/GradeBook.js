@@ -278,6 +278,8 @@ const GradeBook = () => {
             });
             if (!response.ok) {
                 throw new Error('Failed to create class');
+            }else{
+                alert('Created Class');
             }
             const newClass = await response.json();
             setClass([...classes, newClass]);
@@ -754,21 +756,23 @@ const GradeBook = () => {
                         </Modal>
                     )}
                     {showCreateModal && (
-                        <Modal onClose={() => setShowCreateModal(false)}>
+                        <Modal className="registration-modal-container" onClose={() => setShowCreateModal(false)}>
                             <h2>Create New Class</h2>
                             <input
                                 type="text"
                                 placeholder="Class Level"
                                 value={classLevel}
                                 onChange={(e) => setClassLevel(e.target.value)}
+                                className="registration-modal-content"
                             />
                             <input
                                 type="text"
                                 placeholder="Subject"
                                 value={subject}
                                 onChange={(e) => setSubject(e.target.value)}
+                                className="registration-modal-content"
                             />
-                            <button onClick={handleCreateClass}>Create</button>
+                            <button className="add-button" onClick={handleCreateClass}>Create</button>
                         </Modal>
                     )}
 
