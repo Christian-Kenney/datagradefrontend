@@ -1,101 +1,101 @@
-/* Resetting default margins and paddings */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Body styles */
+
 body {
     font-family: Arial, sans-serif;
     background-color: #666666;
     color: #ffffff;
-    font-size: 18px; /* Increase default font size */
+    font-size: 18px;
 }
 
-/* Header styles */
+
 .header {
     background-color: #222222;
-    padding: 30px; /* Increase padding */
+    padding: 30px;
     text-align: center;
 }
 
 .title {
-    font-size: 36px; /* Increase title font size */
-    margin-bottom: 20px; /* Increase margin */
+    font-size: 36px;
+    margin-bottom: 20px;
 }
 
 .user-info {
-    margin-bottom: 30px; /* Increase margin */
+    margin-bottom: 30px;
 }
 
 .username {
     font-weight: bold;
-    font-size: 20px; /* Increase font size */
+    font-size: 20px;
 }
 
 .logout-btn {
     background-color: #a6761d;
     color: #ffffff;
     border: none;
-    padding: 10px 20px; /* Increase padding */
-    margin-left: 20px; /* Increase margin */
+    padding: 10px 20px;
+    margin-left: 20px;
     cursor: pointer;
-    font-size: 20px; /* Increase font size */
+    font-size: 20px;
 }
 
-/* Class dropdown styles */
+
 .class-dropdown {
     text-align: center;
-    margin-bottom: 30px; /* Increase margin */
+    margin-bottom: 30px;
 }
 
 .class-dropdown select {
-    padding: 10px; /* Increase padding */
-    margin-right: 20px; /* Increase margin */
+    padding: 10px;
+    margin-right: 20px;
     border: none;
     background-color: #333333;
     color: #ffffff;
-    font-size: 20px; /* Increase font size */
+    font-size: 20px;
 }
 
-/* Button styles */
+
 .button {
     background-color: #a6761d;
     color: #ffffff;
     border: none;
-    padding: 10px 20px; /* Increase padding */
-    margin-right: 20px; /* Increase margin */
+    padding: 10px 20px;
+    margin-right: 20px;
     cursor: pointer;
-    font-size: 20px; /* Increase font size */
+    font-size: 20px;
 }
 
 .button:hover {
     background-color: #875f15;
 }
 
-/* Main content styles */
+
 .gradebook-main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 30px; /* Increase padding */
+    padding: 30px;
 }
 
-/* Table styles */
+
 table {
-    width: 90%; /* Adjust table width */
-    max-width: 1200px; /* Set maximum table width */
+    width: 90%;
+    max-width: 1200px;
     border-collapse: collapse;
-    margin-bottom: 30px; /* Increase margin */
+    margin-bottom: 30px;
 }
 
 th, td {
     border: 1px solid #a6761d;
-    padding: 15px; /* Increase padding */
+    padding: 15px;
     text-align: left;
     font-size: 20px;
-    text-align: center;/* Increase font size */
+    text-align: center;
 }
 
 th {
@@ -104,15 +104,15 @@ th {
 }
 
 
-/* Update button styles */
+
 .update-button {
     background-color: #a6761d;
     color: #ffffff;
     border: none;
-    padding: 5px 5px; /* Increase padding */
+    padding: 5px 5px;
     cursor: pointer;
-    border-radius: 5px; /* Rounded corners */
-    font-size: 20px; /* Increase font size */
+    border-radius: 5px;
+    font-size: 20px;
     float: right;
     display: flex;
 }
@@ -121,10 +121,10 @@ th {
     background-color: #a6761d;
     color: #ffffff;
     border: none;
-    padding: 20px 20px; /* Increase padding */
+    padding: 20px 20px;
     cursor: pointer;
-    border-radius: 5px; /* Rounded corners */
-    font-size: 20px; /* Increase font size */
+    border-radius: 5px;
+    font-size: 20px;
     float: right;
     margin: 15px;
 }
@@ -138,8 +138,7 @@ th {
 }
 
 canvas{
-    /*width:700px !important;*/
-    /*height:450px !important;*/
+
 }
 
 .small-graph {

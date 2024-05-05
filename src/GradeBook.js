@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './GradeBook.css'; // Import the CSS file
+import './GradeBook.css';
 import { useUser} from "./UserContext";
-import Chart from 'chart.js/auto'; // Import Chart.js
+import Chart from 'chart.js/auto';
 import Modal from "./Modal";
 import { useNavigate } from 'react-router-dom';
 import GradeModal from "./GradeModal";
@@ -763,7 +763,7 @@ const GradeBook = () => {
 
     const checkLoadingStatus = () => {
         if (loadingCounter.current === 0) {
-            setIsLoading(false); // Set isLoading to false when all effects are completed
+            setIsLoading(false);
         }
     };
 

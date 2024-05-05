@@ -7,7 +7,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 999; /* Ensure modal is on top of other elements */
+    z-index: 999;
 }
 
 .registration-modal-content {
@@ -31,7 +31,7 @@
 .registration-modal-content input[type="password"],
 .registration-modal-content input[type="email"],
 .registration-modal-content select {
-    width: calc(100% - 22px); /* Adjust for the border width */
+    width: calc(100% - 22px);
     padding: 10px;
     margin-bottom: 20px;
     border: 1px solid #ccc;

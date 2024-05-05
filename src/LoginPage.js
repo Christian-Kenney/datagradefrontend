@@ -45,7 +45,7 @@ const LoginPage = () => {
         try {
             const createdUser = await createUser(newUser);
             console.log('User created:', createdUser);
-            // Handle any further actions after user creation
+
             setIsModalOpen(false);
         } catch (error) {
             console.error('Error creating user:', error);
@@ -86,12 +86,13 @@ const LoginPage = () => {
             return createdUser;
         } catch (error) {
             console.error('Error creating user:', error);
-            throw error; // Re-throw the error to be caught by the caller
+            throw error;
         }
     };
     return (
         <div className="login-container">
         <div className={"login-page"}>
+            <h1>Datagrade</h1>
             <h2>Login</h2>
             <input
                 type="text"

@@ -10,7 +10,6 @@ const RegistrationModal = ({ isOpen, onClose, onRegister }) => {
     const [role, setRole] = useState('');
 
     const handleRegister = () => {
-        // Perform validation here if needed
         const newUser = { fullName, username, password, email, role };
         onRegister(newUser);
         onClose();
