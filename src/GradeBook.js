@@ -273,7 +273,7 @@ const GradeBook = () => {
                 body: JSON.stringify({
                     gradelevel: classLevel,
                     subject: subject,
-                    teacher: loggedInUser.id
+                    teacher: 1
                     }),
             });
             if (!response.ok) {
