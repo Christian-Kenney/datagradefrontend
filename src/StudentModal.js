@@ -16,7 +16,7 @@ const StudentModal = ({ selectedClass, students, onClose, onSelectStudent, onSub
     };
 
     const handleSubmit = async () => {
-        const response = await fetch('https://datagradebackend-f2ecd09dee7f.herokuapp.com/student/', {
+        const response = await fetch('https://datagradebackend-f2ecd09dee7f.herokuapp.com/student', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -27,7 +27,7 @@ const StudentModal = ({ selectedClass, students, onClose, onSelectStudent, onSub
             }),
         });
         if (!response.ok) {
-            throw new Error('Failed to create class');
+            throw new Error('Failed to create student');
         }
     };
 

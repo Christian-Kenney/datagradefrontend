@@ -265,7 +265,7 @@ const GradeBook = () => {
     const handleCreateClass = async () => {
 
         try {
-            const response = await fetch('https://datagradebackend-f2ecd09dee7f.herokuapp.com/class', {
+            const response = await fetch('https://datagradebackend-f2ecd09dee7f.herokuapp.com/class/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -746,6 +746,13 @@ const GradeBook = () => {
 
 
 
+
+                    <button className="add-button" onClick={() => setShowCreateModal(true)}>Create Class</button>
+                    {showGraph && (
+                        <Modal onClose={handleCloseModal}>
+                            <canvas ref={chartRef}></canvas>
+                        </Modal>
+                    )}
                     {showCreateModal && (
                         <Modal onClose={() => setShowCreateModal(false)}>
                             <h2>Create New Class</h2>
@@ -780,6 +787,7 @@ const GradeBook = () => {
                             <button onClick={handleAddStudent} className="add-button">Add Student</button>
                             <button onClick={handleAddAssignment} className="add-button">Add Assignment</button>
                             <button onClick={handleLogUserData} className="add-button">Load Grades</button>
+
                         </div>
                     )}
 
