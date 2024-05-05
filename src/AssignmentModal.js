@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
 
-const GradeModal = ({ onClose, onSubmit }) => {
-    const [newGrade, setNewGrade] = useState('');
+const AssignmentModal = ({ onClose, onSubmit }) => {
+    const [newAssignment, setNewAssignment] = useState('');
 
     const handleSubmit = () => {
-        onSubmit(newGrade);
+        console.log("NA: ", newAssignment);
+        onSubmit(newAssignment);
         onClose();
     };
 
     return (
         <div className="registration-modal-container">
             <div className="registration-modal-content">
-                <h2>Update Grade</h2>
-                <label>New Grade:</label>
+                <h2>Update Assignment</h2>
+                <label>New Name:</label>
                 <input
                     type="text"
-                    value={newGrade}
-                    onChange={(e) => setNewGrade(e.target.value)}
+                    value={newAssignment}
+                    onChange={(e) => setNewAssignment(e.target.value)}
                 />
                 <button onClick={handleSubmit} className="registration-modal-submit">Submit</button>
                 <button onClick={onClose}>Cancel</button>
@@ -25,4 +26,4 @@ const GradeModal = ({ onClose, onSubmit }) => {
     );
 };
 
-export default GradeModal;
+export default AssignmentModal;

@@ -11,7 +11,7 @@
 }
 
 .registration-modal-content {
-    background-color: #666666;
+    background-color: #171616;
     padding: 20px;
     border-radius: 5px;
     width: 300px;
@@ -23,6 +23,10 @@
     margin-bottom: 20px;
 }
 
+.registration-modal-submit{
+    padding: 10px;
+    margin-bottom: 10px;
+}
 .registration-modal-content input[type="text"],
 .registration-modal-content input[type="password"],
 .registration-modal-content input[type="email"],

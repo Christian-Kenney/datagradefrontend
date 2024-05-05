@@ -28,6 +28,8 @@ const StudentModal = ({ selectedClass, students, onClose, onSelectStudent, onSub
         });
         if (!response.ok) {
             throw new Error('Failed to create student');
+        }else{
+            alert('Created Student, reload page!');
         }
     };
 
@@ -42,7 +44,8 @@ const StudentModal = ({ selectedClass, students, onClose, onSelectStudent, onSub
                         <option key={student.id} value={student.id}>{student.name}</option>
                     ))}
                 </select>
-                <button onClick={handleSubmit}>Submit</button>
+                <button onClick={handleSubmit} className="registration-modal-submit">Submit</button>
+                <button onClick={onClose}>Cancel</button>
             </div>
         </div>
     );

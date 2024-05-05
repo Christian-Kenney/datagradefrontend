@@ -114,6 +114,7 @@ th {
     border-radius: 5px; /* Rounded corners */
     font-size: 20px; /* Increase font size */
     float: right;
+    display: flex;
 }
 
 .add-button{

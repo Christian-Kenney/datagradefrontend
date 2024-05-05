@@ -6,6 +6,7 @@ import Modal from "./Modal";
 import { useNavigate } from 'react-router-dom';
 import GradeModal from "./GradeModal";
 import StudentModal from "./StudentModal";
+import AssignmentModal from "./AssignmentModal";
 
 const GradeBook = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -34,10 +35,14 @@ const GradeBook = () => {
     let loadedGrades;
     let classGrades = [];
     const [stateClassGrades, setClassGrades] = useState([]);
+    const [stateClassAssignments, setClassAss] = useState([]);
     const [gradeIdCounter, setGradeIdCounter] = useState(0);
     const [showGradeModal, setShowGradeModal] = useState(false);
+    const [showAssModal, setShowAssModal] = useState(false);
     let [gradeUpdateStudent, setGradeUpdateStudent] = useState(false);
     let [gradeUpdateAssignment, setGradeUpdateAssignment] = useState(false);
+    let [assignmentUpdateName, setAssName] = useState(false);
+    let [assignmentUpdateIndex, setAssIndex] = useState(false);
     // let [stateNewStudents, setNewStudents] = useState([]);
     const [showAddStudentModal, setShowAddStudentModal] = useState(false);
     const [selectedStudentId, setSelectedStudentId] = useState('');
@@ -73,6 +78,7 @@ const GradeBook = () => {
         compileGrades();
         getStudentForRow();
         compileStudents();
+        compileAssignments();
         loadedGrade = true;
     };
 
@@ -96,9 +102,32 @@ const GradeBook = () => {
 
     }
 
+    const updateAssignment = (index) => {
+        // gradeUpdateStudent = student;
+        gradeUpdateAssignment = index;
+
+
+        handleUpdateAssignment(index);
+
+    }
+
+    const handleUpdateAssignment = (index) => {
+
+        console.log("INDEX: ", index);
+        setShowAssModal(true);
+        setAssIndex(index);
+        // setAssName(name);
+
+
+    }
+
+
     const enrolledStudentsFunction = () =>{
 
 
+    }
+    const updateAssignmentSave = async (newName) => {
+        console.log("SAVE NM: ", newName);
     }
     const saveNewGrade= async (newGrade) => {
 
@@ -141,12 +170,14 @@ const GradeBook = () => {
             });
             if (!response.ok) {
                 throw new Error('Failed to update assignment name');
+            }else{
+                alert('Updated Grade! Hit "Load Grades" again');
             }
 
             await fetchData();
         }else{
 
-            const response = await fetch('https://datagradebackend-f2ecd09dee7f.herokuapp.com/grade/', {
+            const response = await fetch('https://datagradebackend-f2ecd09dee7f.herokuapp.com/grade', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -158,7 +189,9 @@ const GradeBook = () => {
                 }),
             });
             if (!response.ok) {
-                throw new Error('Failed to create class');
+                throw new Error('Failed to create grade');
+            }else{
+                alert('Updated Grade! Hit "Load Grades" again');
             }
 
             await fetchData();
@@ -170,6 +203,14 @@ const GradeBook = () => {
         saveNewGrade(newGrade);
         setShowGradeModal(false);
     };
+
+    const handleUpdateAssSave = (newName, index) => {
+        console.log("HUAS Index: ", assignmentUpdateIndex);
+        console.log("HUAS Name: ", newName);
+        handleAssignmentNameChange(assignmentUpdateIndex, newName);
+    }
+
+
 
     const compileGrades = () => {
 
@@ -217,6 +258,16 @@ const GradeBook = () => {
     }
 
 
+    const compileAssignments = () => {
+        let classAssignments = [];
+        for (let i = 0; i < assignments.length; i++) {
+            if (assignments[i].classId == selectedClass.classId) {
+                classAssignments.push(assignments[i]);
+
+            }
+        }
+        setClassAss(classAssignments);
+    }
     const compileStudents = () => {
 
 
@@ -254,6 +305,7 @@ const GradeBook = () => {
         compileGrades();
         getStudentForRow();
         compileStudents();
+        compileAssignments();
     };
 
     const handleSelectStudent = (studentId) => {
@@ -480,7 +532,11 @@ const GradeBook = () => {
 
     const handleAssignmentNameChange = async (index, newName) => {
         try {
-            const assId = assignments[index].assignmentId;
+            const assId = stateClassAssignments[index].assignmentId;
+            console.log("Assignments: ", assignments)
+            console.log("INDEXxxxx: ", assignments[index]);
+            console.log("assId: ", assId);
+            console.log("classAssignments: ", stateClassAssignments);
             const response = await fetch(`https://datagradebackend-f2ecd09dee7f.herokuapp.com/assignment/${assId}`, {
                 method: 'PATCH',
                 headers: {
@@ -490,6 +546,8 @@ const GradeBook = () => {
             });
             if (!response.ok) {
                 throw new Error('Failed to update assignment name');
+            }else{
+                alert('Updated Assignment, refresh the page!');
             }
             const updatedAssignment = await response.json();
             const updatedAssignments = [...assignments];
@@ -498,6 +556,7 @@ const GradeBook = () => {
         } catch (error) {
             console.error('Error updating assignment name:', error);
         }
+
     };
     useEffect(() => {
 
@@ -786,7 +845,7 @@ const GradeBook = () => {
                     {selectedClass !== undefined && (
 
                         <div className="controls">
-                            <button onClick={handleShowGraph} className="add-button">Show Graph</button>
+                            <button onClick={handleShowGraph} className="add-button">Show Bar Graph</button>
                             <button className="add-button" onClick={handleShowPieChart}>Show Pie Chart</button>
                             <button onClick={handleAddStudent} className="add-button">Add Student</button>
                             <button onClick={handleAddAssignment} className="add-button">Add Assignment</button>
@@ -807,16 +866,13 @@ const GradeBook = () => {
                             {selectedClass && assignments
                                 .filter(assignment => assignment.classId === selectedClass.classId)
                                 .map((assignmentItem, index) => {
-                                    setTimeout(() => {
-                                        // compileGrades();
-                                    }, 1000);
                                     return (
-                                        <th key={index}>
-                                            <input
-                                                type="text"
-                                                value={assignmentItem.name}
-                                                onChange={(event) => handleAssignmentNameChange(index, event.target.value)}
-                                            />
+                                        <th key={index} style={{ alignItems: "center" }}>
+
+                                            <div style={{ display: "flex", alignItems: "center" }}>
+                                            <td style={{ marginRight: "10px", whiteSpace: "nowrap" }}>{assignmentItem.name}</td>
+                                            <button onClick={() => handleUpdateAssignment(index)} className="update-button">update</button>
+                                            </div>
                                         </th>
                                     )
                                 })}
@@ -859,6 +915,11 @@ const GradeBook = () => {
                             <GradeModal onClose={() => setShowGradeModal(false)} onSubmit={handleSubmitGrade}student={gradeUpdateStudent}assignment={gradeUpdateAssignment} />
                         </Modal>
                     )}
+                    {showAssModal && (
+                        <Modal onClose={() => setShowAssModal(false)}>
+                            <AssignmentModal onClose={() => setShowAssModal(false)} onSubmit={handleUpdateAssSave}assignment={selectedClass} />
+                        </Modal>
+                    )}
                     {showAddStudentModal && (
                         <Modal onClose={handleCloseAddStudentModal}>
                             <StudentModal selectedClass={selectedClass} students={modalStudents} onClose={handleCloseAddStudentModal} onSelectStudent={handleSelectStudent} onSubmit={handleAddStudent} />
@@ -882,13 +943,6 @@ const GradeBook = () => {
 
                 </div>
 
-                <div>
-                    {/*{showGraph && (*/}
-                    {/*    <Modal style={{ width: '80%', height: '80%' }} onClose={handleCloseModal}>*/}
-                    {/*        <canvas ref={chartRef}></canvas>*/}
-                    {/*    </Modal>*/}
-                    {/*)}*/}
-                </div>
             </main>
         </div>
     );
