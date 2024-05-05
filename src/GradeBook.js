@@ -4,12 +4,16 @@ import { useUser} from "./UserContext";
 import Chart from 'chart.js/auto'; // Import Chart.js
 import Modal from "./Modal";
 import { useNavigate } from 'react-router-dom';
+import GradeModal from "./GradeModal";
+import StudentModal from "./StudentModal";
 
 const GradeBook = () => {
+    const [isLoading, setIsLoading] = useState(true);
+    const loadingCounter = useRef(0);
     const [user, setUser] = useState('John Doe');
     const [users, setUsers] = useState();
     const [classes, setClass] = useState([]);
-    const [selectedClass, setSelectedClass] = useState(null);
+    const [selectedClass, setSelectedClass] = useState(classes[0]);
     const [students, setStudents] = useState([]);
     const [assignments, setAssignments] = useState([]);
     const [grades, setGrades] = useState({});
@@ -19,12 +23,33 @@ const GradeBook = () => {
     let counter = 0;
     const chartRef = useRef(null);
     const [showGraph, setShowGraph] = useState(false);
+    const [showGraph2, setShowGraph2] = useState(false);
     const navigate = useNavigate();
     const [showPieChart, setShowPieChart] = useState(false);
     const pieChartRef = useRef(null);
     const [classLevel, setClassLevel] = useState('');
     const [subject, setSubject] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [rawGrades, setRawGrades] = useState();
+    let loadedGrades;
+    let classGrades = [];
+    const [stateClassGrades, setClassGrades] = useState([]);
+    const [gradeIdCounter, setGradeIdCounter] = useState(0);
+    const [showGradeModal, setShowGradeModal] = useState(false);
+    let [gradeUpdateStudent, setGradeUpdateStudent] = useState(false);
+    let [gradeUpdateAssignment, setGradeUpdateAssignment] = useState(false);
+    // let [stateNewStudents, setNewStudents] = useState([]);
+    const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+    const [selectedStudentId, setSelectedStudentId] = useState('');
+    let stateNewStudents;
+    const [modalStudents, setModalStudents] = useState([]);
+    const [modalSelected, setModalSelected] = useState();
+    let studentCounter = 0;
+    const [stateEnrolledStudents, setEnrolledStudents] = useState([]);
+    let enrolledStudents = [];
+    let [usersForSplice, setUsersSplice] = useState([]);
+    let loadedGrade = false;
+
 
 
 
@@ -40,44 +65,205 @@ const GradeBook = () => {
     const handleClassChange = (event) => {
         const selectedClassObject = classes.find(classItem => classItem.subject === event.target.value);
         setSelectedClass(selectedClassObject);
-        fetchAssignments()
-        fetchStudents()
-        fetchGrades()
-
+        loadedGrades = false;
 
     };
 
-    const viewAssignments = (event) => {
-        console.log("ASSIGNMENTS: ", assignments);
-        console.log("selectedClass: ", selectedClass);
-    }
-    const printSelectedClass = () => {
-        console.log("CLASS: ", selectedClass);
-        console.log("Better class: ")
+    const handleLogUserData = () => {
+        compileGrades();
+        getStudentForRow();
+        compileStudents();
+        loadedGrade = true;
+    };
+
+
+    const handleUpdateGrade = (student, assignment) => {
+
+
+        setShowGradeModal(true);
+        setGradeUpdateStudent(student);
+        setGradeUpdateAssignment(assignment);
+    };
+
+    const updateGrade = (student, assignment) => {
+
+        gradeUpdateStudent = student;
+        gradeUpdateAssignment = assignment;
+
+
+        handleUpdateGrade(student, assignment);
+
+
     }
 
-    const findGrades = (event) => {
+    const enrolledStudentsFunction = () =>{
+
 
     }
+    const saveNewGrade= async (newGrade) => {
+
+
+        const fetchData = async () => {
+
+            await Promise.all([
+                fetchUserById(1),
+                fetchUsers(),
+                fetchClassByUserId(),
+                fetchAssignments(),
+                fetchUsersForStudents()
+            ]);
+
+            await Promise.all([
+                fetchAssignments(),
+                fetchStudents(),
+                fetchGrades()
+            ]);
+
+        };
+
+        let previousGrade = false;
+        let gradeToChange;
+        for(let i = 0; i < rawGrades.length; i++){
+            if((rawGrades[i].studentId == gradeUpdateStudent.userId) && (rawGrades[i].assignmentId == gradeUpdateAssignment.assignmentId)){
+                previousGrade = true;
+                gradeToChange = rawGrades[i];
+            }
+        }
+
+
+        if(previousGrade){
+            const response = await fetch(`https://datagradebackend-f2ecd09dee7f.herokuapp.com/grade/${gradeToChange.gradeId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ grade: newGrade }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to update assignment name');
+            }
+
+            await fetchData();
+        }else{
+
+            const response = await fetch('https://datagradebackend-f2ecd09dee7f.herokuapp.com/grade/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    studentId: gradeUpdateStudent.studentUserId,
+                    grade: newGrade,
+                    assignmentId: gradeUpdateAssignment.assignmentId
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to create class');
+            }
+
+            await fetchData();
+        }
+
+    }
+    const handleSubmitGrade = (newGrade, student, assignment) => {
+
+        saveNewGrade(newGrade);
+        setShowGradeModal(false);
+    };
+
+    const compileGrades = () => {
+
+        // if(loadedGrades == false) {
+
+            let classAssignments = [];
+            let classStudents = [];
+            let currClassGrade = [];
+            for (let i = 0; i < assignments.length; i++) {
+                    if (assignments[i].classId == selectedClass.classId) {
+                        classAssignments.push(assignments[i]);
+
+                    }
+
+
+            }
+            for (let i = 0; i < students.length; i++) {
+                if (students[i].classId == selectedClass.classId) {
+                    classStudents.push(students[i]);
+                }
+            }
+
+            for (let x = 0; x < classStudents.length; x++) {
+                for (let i = 0; i < classAssignments.length; i++) {
+                    let foundNumber = false
+                    for (let z = 0; z < rawGrades.length; z++) {
+                        if ((rawGrades[z].assignmentId == classAssignments[i].assignmentId) && (rawGrades[z].studentId == classStudents[x].userId)) {
+                            currClassGrade.push(rawGrades[z].grade);
+                            classGrades.push(rawGrades[z].grade);
+                            foundNumber = true;
+                        }
+                    }
+                    if(foundNumber == false){
+                        classGrades.push('');
+                    }
+                }
+            }
+
+            setClassGrades(classGrades);
+
+            loadedGrades = true;
+
+
+
+    }
+
+
+    const compileStudents = () => {
+
+
+        stateNewStudents = usersForSplice;
+
+        for(let i = 0; i < stateNewStudents.length; i++){
+            if(stateNewStudents[i].role.id == 1){
+                stateNewStudents.splice(i, 1);
+            }
+        }
+
+
+        for(let i = 0; i < stateNewStudents.length; i++){
+            for(let x = 0; x < students.length; x++){
+                if((students[x].userId == stateNewStudents[i].id) && (students[x].classId == selectedClass.classId)){
+                    stateNewStudents.splice(i, 1);
+                }
+            }
+        }
+
+
+        setModalStudents(stateNewStudents);
+        setModalSelected(selectedClass);
+    }
+
+
+
     const handleAddStudent = () => {
-        const usersNotEnrolled = Object.values(users).filter(user => user.roleId === 2 && !students.find(student => student.userId === user.userId && student.classId === selectedClass.classId));
-
-        const studentOptions = usersNotEnrolled.map(user => (
-            <option key={user.userId} value={user.userId}>{user.name}</option>
-        ));
-
-        const studentDropdown = (
-            <select onChange={handleStudentSelection}>
-                <option value="">Select a student</option>
-                {studentOptions}
-            </select>
-        );
-
-        setStudentDropdown(studentDropdown);
+        setShowAddStudentModal(true);
     };
+
+    const handleCloseAddStudentModal = () => {
+
+        setShowAddStudentModal(false);
+        compileGrades();
+        getStudentForRow();
+        compileStudents();
+    };
+
+    const handleSelectStudent = (studentId) => {
+        setSelectedStudentId(studentId);
+
+    };
+
 
     const handleCreateClass = async () => {
-        console.log("LOGGED IN USER: ", loggedInUser);
+
         try {
             const response = await fetch('https://datagradebackend-f2ecd09dee7f.herokuapp.com/class', {
                 method: 'POST',
@@ -153,15 +339,22 @@ const GradeBook = () => {
     };
 
     const handleGradeChange = (student, assignment, event) => {
-        const updatedGrades = { ...grades };
-        updatedGrades[student] = {
-            ...updatedGrades[student],
-            [assignment]: event.target.value,
-        };
-        setGrades(updatedGrades);
+
+
+
     };
 
 
+
+
+
+    const incrementTdCounter = () => {
+        counter = counter + 1;
+    }
+
+    const incrementStudentCounter = () => {
+        studentCounter = studentCounter + 1;
+    }
     const fetchUserById = async (userId) => {
         try {
             const response = await fetch(`https://datagradebackend-f2ecd09dee7f.herokuapp.com/users/${userId}`);
@@ -183,11 +376,26 @@ const GradeBook = () => {
             }
             const usersData = await response.json();
             setUsers(usersData);
+
         } catch (error) {
             console.error('Error fetching user:', error);
         }
     };
 
+    const fetchUsersForStudents = async () => {
+        let newUser;
+        try {
+            const response = await fetch(`https://datagradebackend-f2ecd09dee7f.herokuapp.com/users`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch user');
+            }
+            const usersData2 = await response.json();
+            setUsersSplice(usersData2);
+        } catch (error) {
+            console.error('Error fetching user:', error);
+        }
+
+    };
     const fetchClassByUserId = async () => {
         try {
             const response = await fetch(`https://datagradebackend-f2ecd09dee7f.herokuapp.com/class`);
@@ -195,7 +403,6 @@ const GradeBook = () => {
                 throw new Error('Failed to fetch user');
             }
             const classData = await response.json();
-            console.log("HERERE: ", classData)
             setClass(classData);
         } catch (error) {
             console.error('Error fetching user:', error);
@@ -203,27 +410,29 @@ const GradeBook = () => {
     };
 
     const fetchAssignments = async () => {
+
         try {
             const response = await fetch(`https://datagradebackend-f2ecd09dee7f.herokuapp.com/assignment`);
             if (!response.ok) {
                 throw new Error('Failed to fetch user');
             }
             const assignmentData = await response.json();
-            console.log("HERERE: ", assignmentData)
             setAssignments(assignmentData);
+
         } catch (error) {
             console.error('Error fetching user:', error);
         }
+
     };
 
     const fetchStudents = async () => {
+
         try {
             const response = await fetch(`https://datagradebackend-f2ecd09dee7f.herokuapp.com/student`);
             if (!response.ok) {
                 throw new Error('Failed to fetch user');
             }
             const studentData = await response.json();
-            console.log("HERERE: ", studentData)
             setStudents(studentData);
         } catch (error) {
             console.error('Error fetching user:', error);
@@ -235,34 +444,42 @@ const GradeBook = () => {
         try {
             const response = await fetch(`https://datagradebackend-f2ecd09dee7f.herokuapp.com/grade`);
             if (!response.ok) {
-                throw new Error('Failed to fetch user');
+                throw new Error('Failed to fetch grades');
             }
             const gradeData = await response.json();
-            console.log("HERERE: ", gradeData)
-            setGrades(gradeData);
+            setRawGrades(gradeData);
+            const updatedGrades = {};
+            gradeData.forEach(grade => {
+                const { studentId, assignmentId, grade: studentGrade } = grade;
+                if (!updatedGrades[studentId]) {
+                    updatedGrades[studentId] = {};
+                }
+                updatedGrades[studentId][assignmentId] = studentGrade;
+            });
+
         } catch (error) {
-            console.error('Error fetching user:', error);
+            console.error('Error fetching grades:', error);
         }
     };
 
-    const handleLogUserData = () => {
-        console.log(loggedInUser);
-        fetchUserById(1);
-        fetchUsers()
-        fetchClassByUserId()
 
 
-    };
-
+    const getStudentForRow = () => {
+        let enrolledStudentsInSelected = [];
+        for(let i = 0; i < students.length; i++){
+            if(students[i].classId == selectedClass.classId){
+                enrolledStudentsInSelected.push(students[i])
+            }
+        }
+        let returnValue = enrolledStudentsInSelected;
+        setEnrolledStudents(enrolledStudentsInSelected);
+        return returnValue;
+    }
 
     const handleAssignmentNameChange = async (index, newName) => {
         try {
-            console.log("NEW NAME: ", newName);
-            console.log("index: ", index);
-            console.log("id: ", assignments[index].assignmentId);
-            console.log("Assignments: ", assignments);
             const assId = assignments[index].assignmentId;
-            const response = await fetch(`https://datagradebackend-f2ecd09dee7f.herokuapp.com/assignment/1`, {
+            const response = await fetch(`https://datagradebackend-f2ecd09dee7f.herokuapp.com/assignment/${assId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -281,38 +498,48 @@ const GradeBook = () => {
         }
     };
     useEffect(() => {
-        // setUser(loggedInUser);
-        // setUsers(loggedInUser);
-        if(users){
-            console.log('users data: ', users)
-        }
-        if (user) {
-            console.log('User data:', user);
-        }
-        if(classes) {
-            console.log('class data: ', classes)
-        }
-        if(assignments){
-            console.log('assignment data: ', assignments)
-        }
-        if(students){
-            console.log('student data: ', students)
-        }
-        if(grades){
-            console.log('grade data: ', grades)
-        }
 
-        console.log("LOGGED IN: ", loggedInUser);
+        loadingCounter.current += 1;
+
+        loadingCounter.current -= 1;
+        checkLoadingStatus();
 
     }, [user, classes]);
 
     useEffect(() => {
-        if(showGraph && chartRef && chartRef.current) {
+
+        loadingCounter.current += 1;
+        const fetchData = async () => {
+            await Promise.all([
+                fetchUserById(1),
+                fetchUsers(),
+                fetchClassByUserId(),
+                fetchAssignments(),
+                fetchUsersForStudents()
+            ]);
+
+            await Promise.all([
+                fetchAssignments(),
+                fetchStudents(),
+                fetchGrades()
+            ]);
+
+
+
+            loadingCounter.current -= 1;
+            checkLoadingStatus();
+        };
+
+        fetchData();
+
+
+
+        if (showGraph && chartRef && chartRef.current) {
             const prepareChartData = () => {
-                const labels = ["As", "Bs", "Cs", "Ds", "Fs"];
+                const labels = ["A", "B", "C", "D", "F"];
                 const data = [0, 0, 0, 0, 0];
 
-                Object.values(grades).forEach(grade => {
+                Object.values(rawGrades).forEach(grade => {
                     const numericGrade = parseFloat(grade.grade);
                     if (numericGrade >= 90) {
                         data[0]++;
@@ -331,38 +558,86 @@ const GradeBook = () => {
             };
 
             if (chartRef && chartRef.current) {
-                const ctx = chartRef.current.getContext('2d');
-                const {labels, data} = prepareChartData();
+                const ctx = chartRef.current.getContext("2d");
+                const { labels, data } = prepareChartData();
                 new Chart(ctx, {
-                    type: 'bar',
+                    type: "bar",
                     data: {
-                        labels: labels,
+                        labels: ["As", "Bs", "Cs", "Ds", "Fs"],
                         datasets: [{
-                            label: 'Average Grade',
+                            label: "Average Grade",
                             data: data,
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
+                            backgroundColor: "#a6761d",
+                            borderColor: "rgba(54, 162, 235, 1)",
+                            borderWidth: 1,
+                            barPercentage: 0.8,
+                            categoryPercentage: 0.9,
+                            color: "red"
                         }]
                     },
                     options: {
+                        indexAxis: "y",
                         scales: {
+                            x: {
+                                beginAtZero: true,
+                                fontColor: "red",
+                                title: {
+                                    display: true,
+                                    text: "Grades"
+                                }
+                            },
                             y: {
-                                beginAtZero: true
+                                fontColor: "red",
+                                title: {
+                                    display: true,
+                                    text: "Students",
+                                    font: {
+                                        size: 60,
+                                        weight: 'bold',
+                                        fontColor: 'red'
+
+                                    }
+                                }
                             }
-                        }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true
+                            },
+                            title: {
+                                display: true,
+                                text: "Grade Average",
+                                font: {
+                                    size: 60,
+                                    weight: 'bold',
+                                    fontColor: 'red'
+                                }
+                            }
+                        },
+                        layout: {
+                            // padding: {
+                            //     left: 20,
+                            //     right: 20,
+                            //     top: 20,
+                            //     bottom: 20
+                            // }
+                        },
+                        // responsive: true,
+                        // maintainAspectRatio: false
                     }
                 });
             }
         }
-    }, [showGraph, selectedClass, assignments, students, grades]);
+
+    }, [showGraph]);
 
     useEffect(() => {
+        loadingCounter.current += 1;
         if (showPieChart && pieChartRef && pieChartRef.current) {
             const preparePieChartData = () => {
                 const data = [0, 0, 0, 0, 0];
 
-                Object.values(grades).forEach(grade => {
+                Object.values(rawGrades).forEach(grade => {
                     const numericGrade = parseFloat(grade.grade);
                     if (numericGrade >= 90) {
                         data[0]++;
@@ -421,14 +696,42 @@ const GradeBook = () => {
                 });
             }
         }
-    }, [showPieChart, grades]);
+        loadingCounter.current -= 1;
+        checkLoadingStatus();
+    }, [showPieChart, rawGrades]);
+
+    const checkLoadingStatus = () => {
+        if (loadingCounter.current === 0) {
+            setIsLoading(false); // Set isLoading to false when all effects are completed
+        }
+    };
+
+    useEffect(() => {
+        if (!isLoading) {
+            doneLoadingFunction();
+        }
+    }, [isLoading]);
+
+    useEffect(() => {
+        if (!assignments || !students || !rawGrades || !selectedClass) return;
+
+    }, [assignments, students, rawGrades, selectedClass]);
+
+
+
+
+    const doneLoadingFunction = () => {
+    };
+
+
     return (
-        <div className="gradebook">
+        <div className="gradebook-gradebook">
             <header className="header">
                 <h1 className="title">Datagrade</h1>
                 <div className="user-info">
                     <span className="username">Welcome, {user.name}</span>
                     <button className="logout-btn" onClick={handleLogout}>Logout</button>
+
                 </div>
                 <div className="class-dropdown">
                     <select value={selectedClass ? selectedClass.subject : ""} onChange={handleClassChange}>
@@ -437,20 +740,12 @@ const GradeBook = () => {
                             <option key={index} value={classItem.subject}>{classItem.subject}</option>
                         ))}
                     </select>
-                    <button onClick={handleLogUserData}>Log User Data</button>
-                    <button onClick={handleShowGraph}>Show Graph</button>
-                    <button onClick={() => setShowCreateModal(true)}>Create Class</button>
-                    {showGraph && (
-                        <Modal onClose={handleCloseModal}>
-                            <canvas ref={chartRef}></canvas>
-                        </Modal>
-                    )}
-                    <button className="logout-btn" onClick={handleShowPieChart}>Show Pie Chart</button>
-                    {showPieChart && (
-                        <Modal onClose={() => setShowPieChart(false)}>
-                            <canvas ref={pieChartRef}></canvas>
-                        </Modal>
-                    )}
+
+
+
+
+
+
                     {showCreateModal && (
                         <Modal onClose={() => setShowCreateModal(false)}>
                             <h2>Create New Class</h2>
@@ -473,75 +768,114 @@ const GradeBook = () => {
                 </div>
 
             </header>
-            <main className="main">
+            <main className="gradebook-main">
                 <div className="controls">
 
-                    {studentDropdown}
-                    <button onClick={handleAddStudent}>Add Student</button>
-                    <button onClick={handleAddAssignment}>Add Assignment</button>
+
+                    {selectedClass !== undefined && (
+
+                        <div className="controls">
+                            <button onClick={handleShowGraph} className="add-button">Show Graph</button>
+                            <button className="add-button" onClick={handleShowPieChart}>Show Pie Chart</button>
+                            <button onClick={handleAddStudent} className="add-button">Add Student</button>
+                            <button onClick={handleAddAssignment} className="add-button">Add Assignment</button>
+                            <button onClick={handleLogUserData} className="add-button">Load Grades</button>
+                        </div>
+                    )}
+
                 </div>
 
                 <div className="grades">
                     <h2>Grades for {selectedClass ? selectedClass.subject : ''}</h2>
                     <table>
                         <thead>
+
                         <tr>
                             <th>Student</th>
-                            {assignments
+                            {selectedClass && assignments
                                 .filter(assignment => assignment.classId === selectedClass.classId)
-                                .map((assignmentItem, index) => (
-                                <th key={index}>
-                                    <input
-                                        type="text"
-                                        value={assignmentItem.name}
-                                        onChange={(event) => handleAssignmentNameChange(index, event.target.value)}
-                                    />
-                                </th>
-                            ))}
+                                .map((assignmentItem, index) => {
+                                    setTimeout(() => {
+                                        // compileGrades();
+                                    }, 1000);
+                                    return (
+                                        <th key={index}>
+                                            <input
+                                                type="text"
+                                                value={assignmentItem.name}
+                                                onChange={(event) => handleAssignmentNameChange(index, event.target.value)}
+                                            />
+                                        </th>
+                                    )
+                                })}
                         </tr>
                         </thead>
                         <tbody>
-                        {students
+                        {selectedClass && students
                             .filter(student => student.classId === selectedClass.classId)
                             .map((studentItem, studentIndex) => {
-                                let studentGrades = [];
 
+                                incrementStudentCounter()
                                 return (
                                     <tr key={studentIndex}>
-                                        <td>{users[studentItem.userId].name}</td>
-                                        {assignments
-                                            .filter(assignment => assignment.classId === selectedClass.classId)
-                                            .map((assignment, assignmentIndex) => {
-                                                let grade = '';
+                                        <td>{users[studentItem.userId - 1].name}</td>
+                                        {selectedClass &&
+                                            assignments
+                                                .filter(assignment => assignment.classId === selectedClass.classId)
+                                                .map((assignment, assignmentIndex) => {
+                                                    const gradeIndex = studentIndex * assignments.length + assignmentIndex;
+                                                    incrementTdCounter();
+                                                    setTimeout(() => {
+                                                    }, 1000);
+                                                    return (
+                                                        <td key={assignmentIndex}>
+                                                            {stateClassGrades[(counter - 1)]}
+                                                            <button onClick={() => updateGrade(studentItem, assignment)} className="update-button">update</button>
+                                                        </td>
+                                                    );
 
-
-                                                let matchingGrades = grades.filter(grade =>
-                                                    grade.assignmentId === assignment.assignmentId &&
-                                                    grade.studentId === studentItem.studentUserId
-                                                );
-
-
-                                                grade = matchingGrades.length > 0 ? matchingGrades[0].grade : '';
-
-                                                studentGrades.push(grade);
-
-                                                return (
-                                                    <td key={assignmentIndex}>
-                                                        <input
-                                                            type="text"
-                                                            value={grade || ''}
-                                                            onChange={(event) =>
-                                                                handleGradeChange(studentItem, assignment, event)
-                                                            }
-                                                        />
-                                                    </td>
-                                                );
-                                            })}
+                                                })}
                                     </tr>
                                 );
                             })}
                         </tbody>
+
                     </table>
+
+                    {showGradeModal && (
+                        <Modal onClose={() => setShowGradeModal(false)}>
+                            <GradeModal onClose={() => setShowGradeModal(false)} onSubmit={handleSubmitGrade}student={gradeUpdateStudent}assignment={gradeUpdateAssignment} />
+                        </Modal>
+                    )}
+                    {showAddStudentModal && (
+                        <Modal onClose={handleCloseAddStudentModal}>
+                            <StudentModal selectedClass={selectedClass} students={modalStudents} onClose={handleCloseAddStudentModal} onSelectStudent={handleSelectStudent} onSubmit={handleAddStudent} />
+                        </Modal>
+                    )}
+                    {showGraph && (
+
+                        <Modal  onClose={handleCloseModal}>
+                            <h2>Grade Average</h2>
+                            <canvas ref={chartRef} className="small-graph"></canvas>
+                        </Modal>
+                    )}
+                    {showPieChart && (
+                        <div>
+                        <Modal onClose={() => setShowPieChart(false)}>
+                            <h2>Grade Average</h2>
+                            <canvas ref={pieChartRef} className="small-graph"></canvas>
+                        </Modal>
+                        </div>
+                    )}
+
+                </div>
+
+                <div>
+                    {/*{showGraph && (*/}
+                    {/*    <Modal style={{ width: '80%', height: '80%' }} onClose={handleCloseModal}>*/}
+                    {/*        <canvas ref={chartRef}></canvas>*/}
+                    {/*    </Modal>*/}
+                    {/*)}*/}
                 </div>
             </main>
         </div>

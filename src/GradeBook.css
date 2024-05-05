@@ -1,77 +1,152 @@
-/* GradeBook.css */
-
-/* Reset margin and padding */
-body {
+/* Resetting default margins and paddings */
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
-/* Overall layout styles */
-.gradebook {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+/* Body styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #666666;
+    color: #ffffff;
+    font-size: 18px; /* Increase default font size */
 }
 
 /* Header styles */
 .header {
-    background-color: #333;
-    color: #fff;
-    padding: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background-color: #222222;
+    padding: 30px; /* Increase padding */
+    text-align: center;
 }
 
 .title {
-    margin: 0;
+    font-size: 36px; /* Increase title font size */
+    margin-bottom: 20px; /* Increase margin */
 }
 
 .user-info {
-    display: flex;
-    align-items: center;
+    margin-bottom: 30px; /* Increase margin */
 }
 
 .username {
-    margin-right: 10px;
+    font-weight: bold;
+    font-size: 20px; /* Increase font size */
 }
 
 .logout-btn {
-    background-color: #fff;
-    color: #333;
+    background-color: #a6761d;
+    color: #ffffff;
     border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
+    padding: 10px 20px; /* Increase padding */
+    margin-left: 20px; /* Increase margin */
     cursor: pointer;
+    font-size: 20px; /* Increase font size */
 }
 
 /* Class dropdown styles */
 .class-dropdown {
-    margin-right: 20px;
+    text-align: center;
+    margin-bottom: 30px; /* Increase margin */
+}
+
+.class-dropdown select {
+    padding: 10px; /* Increase padding */
+    margin-right: 20px; /* Increase margin */
+    border: none;
+    background-color: #333333;
+    color: #ffffff;
+    font-size: 20px; /* Increase font size */
+}
+
+/* Button styles */
+.button {
+    background-color: #a6761d;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px; /* Increase padding */
+    margin-right: 20px; /* Increase margin */
+    cursor: pointer;
+    font-size: 20px; /* Increase font size */
+}
+
+.button:hover {
+    background-color: #875f15;
 }
 
 /* Main content styles */
-.main {
-    flex: 1;
-    padding: 20px;
+.gradebook-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px; /* Increase padding */
 }
 
-/* Grading table styles */
-.grades table {
-    width: 100%;
+/* Table styles */
+table {
+    width: 90%; /* Adjust table width */
+    max-width: 1200px; /* Set maximum table width */
     border-collapse: collapse;
+    margin-bottom: 30px; /* Increase margin */
 }
 
-.grades th,
-.grades td {
-    border: 1px solid #ddd;
-    padding: 8px;
+th, td {
+    border: 1px solid #a6761d;
+    padding: 15px; /* Increase padding */
+    text-align: left;
+    font-size: 20px;
+    text-align: center;/* Increase font size */
 }
 
-.grades th {
-    background-color: #f2f2f2;
+th {
+    background-color: #222222;
+    color: #ffffff;
 }
 
-.grades tr:nth-child(even) {
-    background-color: #f2f2f2;
+
+/* Update button styles */
+.update-button {
+    background-color: #a6761d;
+    color: #ffffff;
+    border: none;
+    padding: 5px 5px; /* Increase padding */
+    cursor: pointer;
+    border-radius: 5px; /* Rounded corners */
+    font-size: 20px; /* Increase font size */
+    float: right;
+}
+
+.add-button{
+    background-color: #a6761d;
+    color: #ffffff;
+    border: none;
+    padding: 20px 20px; /* Increase padding */
+    cursor: pointer;
+    border-radius: 5px; /* Rounded corners */
+    font-size: 20px; /* Increase font size */
+    float: right;
+    margin: 15px;
+}
+.update-button:hover {
+    background-color: #875f15;
+}
+
+#text{
+    text-align: center;
+
+}
+
+canvas{
+    /*width:700px !important;*/
+    /*height:450px !important;*/
+}
+
+.small-graph {
+    width: 400px;
+    height: 300px;
+}
+
+input {
+    background-color: #444141 !important;
+    color: white;
 }

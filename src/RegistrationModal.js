@@ -1,5 +1,6 @@
 // RegistrationModal.js
 import React, { useState } from 'react';
+import './RegistrationModal.css';
 
 const RegistrationModal = ({ isOpen, onClose, onRegister }) => {
     const [fullName, setFullName] = useState('');
@@ -17,9 +18,9 @@ const RegistrationModal = ({ isOpen, onClose, onRegister }) => {
 
     return (
         isOpen && (
-            <div className="modal">
-                <div className="modal-content">
-                    <span className="close" onClick={onClose}>&times;</span>
+            <div className="registration-modal-container">
+                <div className="registration-modal-content">
+                    <span className="registration-close" onClick={onClose}>&times;</span>
                     <h2>Register</h2>
                     <input
                         type="text"

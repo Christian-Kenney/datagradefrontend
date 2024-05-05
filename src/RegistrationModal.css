@@ -1,0 +1,60 @@
+.registration-modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999; /* Ensure modal is on top of other elements */
+}
+
+.registration-modal-content {
+    background-color: #666666;
+    padding: 20px;
+    border-radius: 5px;
+    width: 300px;
+}
+
+.registration-modal-content h2 {
+    text-align: center;
+    color: #a6761d;
+    margin-bottom: 20px;
+}
+
+.registration-modal-content input[type="text"],
+.registration-modal-content input[type="password"],
+.registration-modal-content input[type="email"],
+.registration-modal-content select {
+    width: calc(100% - 22px); /* Adjust for the border width */
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.registration-modal-content button {
+    width: 100%;
+    padding: 10px;
+    background-color: #e6ab02;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.registration-modal-content button:hover {
+    background-color: #d49500;
+}
+
+.registration-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #ffffff;
+    font-size: 20px;
+    cursor: pointer;
+}

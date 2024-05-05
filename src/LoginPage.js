@@ -63,7 +63,7 @@ const LoginPage = () => {
         }
 
         try {
-            const response = await fetch('http://ec2-34-225-27-237.compute-1.amazonaws.com:8080/users', {
+            const response = await fetch('https://datagradebackend-f2ecd09dee7f.herokuapp.com/users', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -73,7 +73,9 @@ const LoginPage = () => {
                     name: newUser.fullName,
                     password: newUser.password,
                     email: newUser.email,
-                    role: roleId,
+                    role: {
+                        role: roleId
+                    }
                 }),
             });
             if (!response.ok) {
